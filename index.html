@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Vite App</title>
+</head>
+
+<body>
+    <div id="app">
+        <div>
+            A: <span id="A"></span>
+            X: <span id="X"></span>
+            Y: <span id="Y"></span>
+            PC: <span id="PC"></span>
+            <div>SP: <span id="SP"></span></div>
+        </div>
+        <div class="flags" style="
+        display: flex;
+    ">
+            <div>N<input id="N" type="checkbox" /></div>
+            <div>V<input id="V" type="checkbox" /></div>
+            <div>U<input id="U" type="checkbox" /></div>
+            <div>B<input id="B" type="checkbox" /></div>
+            <div>D<input id="D" type="checkbox" /></div>
+            <div>I<input id="I" type="checkbox" /></div>
+            <div>Z<input id="Z" type="checkbox" /></div>
+            <div>C<input id="C" type="checkbox" /></div>
+        </div>
+        <button id="nmi">NMI</button>
+        <button id="irq">IRQ</button>
+        <button id="reset">RESET</button>
+        <div>
+            <canvas id="canvas" width="900" height="500" style="
+            image-rendering: pixelated;
+        ">
+
+            </canvas>
+        </div>
+
+    </div>
+    <script type="module" src="/src/main.ts"></script>
+</body>
+
+</html>
