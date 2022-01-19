@@ -4,7 +4,8 @@ import NesParcer from "./NesParser";
 import './style.css'
 import Bus from "./Bus";
 import PPU from "./PPU";
-
+import GamePad from "./Gamepad";
+//https://www.masswerk.at/6502/6502_instruction_set.html#INC
 console.log(nes);
 const parser = new NesParcer(nes)
 console.log(parser);
@@ -18,16 +19,21 @@ console.log(parser.CHRROM);
 const ppu = new PPU()
 ppu.memory.set(parser.CHRROM)
 console.log(ppu.memory);
-
-const bus = new Bus(ppu)
+const Joy1 = new GamePad()
+const Joy2 = new GamePad()
+const bus = new Bus(ppu, Joy1, Joy2)
 
 bus.memory.set(parser.PRGROM, 0xC000)
 bus.memory.set(parser.PRGROM, 0x8000)
 const cpu = new MOS6502(bus)
+bus.cpu = cpu
 console.log(ppu);
 
 
-cpu.PC = 0xC000
+
+
+
+cpu.PC = 0x8000
 console.log(cpu);
 const A = document.getElementById("A")
 const X = document.getElementById("X")
@@ -69,18 +75,18 @@ try {
         //console.log(time - prevTime);
 
         prevTime = time
-        //ctx?.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height)
-        for (let i = 0; i < 550; i++) {
-            cpu.run()
+        
+        for (let i = 0; i < 200; i++) {
+            bus.clock()
         }
-        for (let i = 0; i < 20000; i++) {
-            ctx&&ppu.draw(ctx)
-
-        }
-        if((ppu.status>>7)>0){
+        if((ppu.PPUCTRL>>7)>0){
+            if(ctx){
+                ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+                ctx.putImageData(ppu.screen, 0, 0);
+            }
             if(!cpu.flagI){
-                cpu.NMI()
-                ppu.status &= ~(1 << 7);
+                ppu.PPUCTRL &= ~(1 << 7);
+                cpu.NMI() 
             }
             
         }
@@ -99,7 +105,7 @@ try {
         V && (V.checked = cpu.flagV)
         D && (D.checked = cpu.flagD)
         
-        ppu.writeStatus(0x80)
+        //ppu.writeStatus(0x80)
 
         
     }
