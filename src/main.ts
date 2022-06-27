@@ -57,6 +57,7 @@ const IRQ = document.getElementById("irq") as HTMLInputElement
 const canvas = document.getElementById("canvas") as HTMLCanvasElement
 const ctx = canvas.getContext('2d')
 
+
 try {
     A && (A.innerText = cpu.A.toString(16).toUpperCase())
     X && (X.innerText = cpu.X.toString(16).toUpperCase())
@@ -71,25 +72,44 @@ try {
     V && (V.checked = cpu.flagV)
     D && (D.checked = cpu.flagD)
     let prevTime = 0
-    function run(time: number) {
-        //console.log(time - prevTime);
+    let prevRender = 0
+    function drawInfo(time: number) {
+        if (ctx) {
+            ctx.fillStyle = "#000"
+            ctx.fillText("Time: "+(time - prevTime).toFixed(2), 270, 10)
+            ctx.fillText("Draw: "+(time - prevRender).toFixed(2), 270, 20)
+            if(prevRender){
+                for (let x = 0; x < 16; x++) {
+                    for (let y = 0; y < 16; y++) {
+                        ctx.textAlign = "center"
+                        const value = ppu.OAM[x + y*16]
+                        if(value == undefined)continue
+                        ctx.fillText((value).toString(16), 270+x*15, 30+y*10)
+                    }
+                    
+                } 
+            }
+        }
+    }
 
-        prevTime = time
-        
-        for (let i = 0; i < 200; i++) {
+    function run(time: number) {
+        for (let i = 0; i < 20000; i++) {
             bus.clock()
-        }
-        if((ppu.PPUCTRL>>7)>0){
-            if(ctx){
-                ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-                ctx.putImageData(ppu.screen, 0, 0);
+            if((ppu.PPUCTRL>>7)>0){
+                if(ctx){
+                    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+                    ctx.putImageData(ppu.screen, 0, 0);
+                    drawInfo(time)
+                    prevRender = time
+                }
+                if(!cpu.flagI){
+                    ppu.PPUCTRL &= ~(1 << 7);
+                    cpu.NMI() 
+                }
             }
-            if(!cpu.flagI){
-                ppu.PPUCTRL &= ~(1 << 7);
-                cpu.NMI() 
-            }
-            
         }
+        
+        prevTime = time
         
         
         A && (A.innerText = cpu.A.toString(16).toUpperCase())

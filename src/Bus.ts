@@ -6,9 +6,9 @@ import { uint_8t } from "./types";
 export default class Bus {
     memory = new Uint8Array(0x1ffff);
     nSystemClockCounter: number = 0;
-    dma_page = 0x00;
-	dma_addr = 0x00;
-	dma_data = 0x00;
+    dma_page: uint_8t = 0x00;
+	dma_addr: uint_8t = 0x00;
+	dma_data: uint_8t = 0x00;
     dma_dummy = true;
 	dma_transfer = false;
     cpu!: MOS6502;
@@ -67,7 +67,7 @@ export default class Bus {
             console.log("PPUCRTL write", value);
         }
         if (addr == 0x2001) {
-            this.ppu.mask = value;
+            this.ppu.PPUMASK = value;
         }
         if (addr == 0x2002) {
             debugger;
@@ -95,7 +95,7 @@ export default class Bus {
         }
         if (addr == 0x4014) {
             //debugger
-            this.dma_page = value;
+            this.dma_page = value&0xFF;
             this.dma_addr = 0x00;
             this.dma_transfer = true;						
         }
@@ -130,13 +130,14 @@ export default class Bus {
                     // DMA can take place!
                     if (this.nSystemClockCounter % 2 == 0) {
                         // On even clock cycles, read from CPU bus
-                        //this.dma_data = this.read((this.dma_page << 8) | this.dma_addr);
+                        this.dma_data = this.read((this.dma_page << 8) | this.dma_addr);
                     } else {
                         // On odd clock cycles, write to PPU OAM
-                        //this.ppu.OAM[this.dma_addr] = this.dma_data;
+                        this.ppu.OAM[this.dma_addr] = this.dma_data;
                         
                         // Increment the lo byte of the address
                         this.dma_addr++;
+                        this.dma_addr &= 0xff
                         // If this wraps around, we know that 256
                         // bytes have been written, so end the DMA
                         // transfer, and proceed as normal
