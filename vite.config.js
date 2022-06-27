@@ -46,6 +46,7 @@ function binary(opts = {})
  * @type {import('vite').UserConfig}
  */
 const config = {
+    base: 'nes6502ts',
     plugins: [binary({ include: "**/*.nes" })],
     optimizeDeps: {
         esbuildOptions: {
